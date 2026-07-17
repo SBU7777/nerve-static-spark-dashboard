@@ -208,14 +208,167 @@
   </div>
 
   <div class="container">
+
+    <!-- ===================== SIGN IN / SIGN UP ===================== -->
     <div id="authSection" class="card">
       <h2 style="margin-bottom: 15px;">Sign In / Sign Up</h2>
       <label>Email</label>
       <input type="email" id="email" placeholder="your@email.com">
-      
+
       <label>Password</label>
       <input type="password" id="password" placeholder="password">
-      
+
       <button class="button" onclick="handleSignIn()">Sign In</button>
       <button class="button button-secondary" onclick="handleSignUp()">Sign Up</button>
-      <div id="authError"
+
+      <div id="authError" class="alert alert-error hidden" style="margin-top: 15px;"></div>
+      <div id="authSuccess" class="alert alert-success hidden" style="margin-top: 15px;"></div>
+    </div>
+
+    <!-- ===================== DASHBOARD (shown after login) ===================== -->
+    <div id="dashboardSection" class="card hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Dashboard</h2>
+        <button class="button button-secondary" onclick="handleSignOut()">Sign Out</button>
+      </div>
+
+      <p style="margin-bottom: 20px;">Signed in as <strong id="userEmail"></strong></p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-number" id="statEpisodes">0</div>
+          <div class="stat-label">Episodes</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" id="statSubscribers">0</div>
+          <div class="stat-label">Subscribers</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom: 10px;">Episodes</h3>
+      <div id="episodeList">
+        <p style="color: #666; font-size: 14px;">No episodes yet.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://xrfigxuxvzesclxmoqrh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_47r9yi-eJrtVZwZpoma0PA_XR_ZH3GQ";
+
+    let supabaseClient = null;
+    const isConfigured =
+      SUPABASE_URL &&
+      SUPABASE_ANON_KEY &&
+      SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE" &&
+      SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY_HERE";
+
+    if (isConfigured) {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    function showError(message) {
+      const box = document.getElementById("authError");
+      box.textContent = message;
+      box.classList.remove("hidden");
+      document.getElementById("authSuccess").classList.add("hidden");
+    }
+
+    function showSuccess(message) {
+      const box = document.getElementById("authSuccess");
+      box.textContent = message;
+      box.classList.remove("hidden");
+      document.getElementById("authError").classList.add("hidden");
+    }
+
+    function clearMessages() {
+      document.getElementById("authError").classList.add("hidden");
+      document.getElementById("authSuccess").classList.add("hidden");
+    }
+
+    function ensureConfigured() {
+      if (!isConfigured) {
+        showError("Supabase is not configured yet.");
+        return false;
+      }
+      return true;
+    }
+
+    function getCredentials() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      return { email, password };
+    }
+
+    async function handleSignUp() {
+      clearMessages();
+      if (!ensureConfigured()) return;
+
+      const { email, password } = getCredentials();
+      if (!email || !password) {
+        showError("Please enter both an email and a password.");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) {
+        showError(error.message);
+        return;
+      }
+
+      if (data.session) {
+        loadDashboard(data.session.user);
+      } else {
+        showSuccess("Account created. Check your email to confirm your address, then sign in.");
+      }
+    }
+
+    async function handleSignIn() {
+      clearMessages();
+      if (!ensureConfigured()) return;
+
+      const { email, password } = getCredentials();
+      if (!email || !password) {
+        showError("Please enter both an email and a password.");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        showError(error.message);
+        return;
+      }
+
+      loadDashboard(data.user);
+    }
+
+    async function handleSignOut() {
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+      document.getElementById("dashboardSection").classList.add("hidden");
+      document.getElementById("authSection").classList.remove("hidden");
+      document.getElementById("email").value = "";
+      document.getElementById("password").value = "";
+      clearMessages();
+    }
+
+    function loadDashboard(user) {
+      document.getElementById("authSection").classList.add("hidden");
+      document.getElementById("dashboardSection").classList.remove("hidden");
+      document.getElementById("userEmail").textContent = user.email || "";
+    }
+
+    async function init() {
+      if (!isConfigured) return;
+      const { data } = await supabaseClient.auth.getSession();
+      if (data.session) {
+        loadDashboard(data.session.user);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
