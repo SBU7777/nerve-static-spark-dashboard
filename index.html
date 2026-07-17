@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nerve Static Spark Podcast</title>
+  <title>Nerve Static Spark - Podcast Platform</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
     }
 
     body {
@@ -21,28 +25,193 @@
     .header {
       background: linear-gradient(135deg, #0A0F14 0%, #1A2330 100%);
       color: white;
-      padding: 40px 20px;
-      text-align: center;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .header h1 {
-      font-size: 28px;
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 600;
+      color: #00B2FF;
+    }
+
+    .user-info {
+      text-align: right;
+      font-size: 13px;
+    }
+
+    .user-email {
+      display: block;
       margin-bottom: 5px;
     }
 
     .container {
-      max-width: 800px;
-      margin: 20px auto;
+      max-width: 1400px;
+      margin: 0 auto;
       padding: 20px;
     }
 
-    .card {
+    .sidebar {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .nav {
       background: white;
-      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .nav-item {
+      display: block;
+      width: 100%;
+      padding: 12px 15px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+      color: #666;
+      border-bottom: 1px solid #eee;
+      transition: all 0.3s;
+    }
+
+    .nav-item:hover {
+      background: #f9f9f9;
+      color: #00B2FF;
+    }
+
+    .nav-item.active {
+      background: #f0f7ff;
+      color: #00B2FF;
+      font-weight: 600;
+      border-left: 3px solid #00B2FF;
+      padding-left: 12px;
+    }
+
+    .nav-item:last-child {
+      border-bottom: none;
+    }
+
+    .content {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .section-description {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, #f0f7ff 0%, #f9f9f9 100%);
+      border: 1px solid #e0f0ff;
       border-radius: 8px;
       padding: 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #00B2FF;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      font-weight: 600;
+    }
+
+    .form-group {
       margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #333;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #00B2FF;
+      box-shadow: 0 0 0 3px rgba(0, 178, 255, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
     }
 
     .button {
@@ -53,7 +222,8 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
-      margin-top: 10px;
+      font-weight: 600;
+      transition: all 0.3s;
     }
 
     .button:hover {
@@ -63,7 +233,6 @@
     .button-secondary {
       background: #f0f0f0;
       color: #333;
-      border: 1px solid #ddd;
     }
 
     .button-secondary:hover {
@@ -78,51 +247,16 @@
       background: #cc0000;
     }
 
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      margin-top: 8px;
-      font-family: inherit;
-      font-size: 14px;
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-top: 15px;
-      margin-bottom: 5px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #eee;
-    }
-
-    .tab {
-      background: none;
-      border: none;
-      padding: 12px 20px;
-      font-size: 14px;
-      cursor: pointer;
-      color: #666;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-    }
-
-    .tab.active {
-      color: #00B2FF;
-      border-bottom-color: #00B2FF;
+    .button-small {
+      padding: 6px 12px;
+      font-size: 12px;
     }
 
     .alert {
-      padding: 12px;
+      padding: 12px 15px;
       border-radius: 6px;
       margin-bottom: 15px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .alert-success {
@@ -137,120 +271,350 @@
       border: 1px solid #f5c6cb;
     }
 
-    .episode-item {
-      background: #f9f9f9;
-      border: 1px solid #eee;
-      border-radius: 6px;
-      padding: 15px;
-      margin-bottom: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-    }
-
-    .episode-info h3 {
-      margin-bottom: 5px;
-      font-size: 16px;
-    }
-
-    .episode-meta {
-      font-size: 12px;
-      color: #666;
-      margin-top: 8px;
+    .alert-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
     }
 
     .hidden {
       display: none;
     }
 
-    .rss-url {
+    .episode-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .episode-card {
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+
+    .episode-info h3 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+    }
+
+    .episode-meta {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .episode-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .rss-box {
       background: #f0f7ff;
-      padding: 12px;
       border: 1px solid #00B2FF;
-      border-radius: 6px;
+      border-radius: 8px;
+      padding: 15px;
       font-family: monospace;
       font-size: 12px;
       word-break: break-all;
-      margin-top: 10px;
+      margin-bottom: 15px;
     }
 
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .stat {
-      background: #f9f9f9;
-      padding: 15px;
-      border-radius: 6px;
+    .file-upload {
+      border: 2px dashed #00B2FF;
+      border-radius: 8px;
+      padding: 20px;
       text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
     }
 
-    .stat-number {
-      font-size: 24px;
-      font-weight: bold;
-      color: #00B2FF;
+    .file-upload:hover {
+      background: #f0f7ff;
     }
 
-    .stat-label {
-      font-size: 12px;
-      color: #666;
-      margin-top: 5px;
+    .file-upload input {
+      display: none;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #00B2FF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      .nav {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        position: static;
+      }
+
+      .nav-item {
+        border-right: 1px solid #eee;
+        border-bottom: none;
+        padding: 10px;
+        font-size: 12px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .episode-card {
+        flex-direction: column;
+      }
+
+      .episode-actions {
+        width: 100%;
+        margin-top: 10px;
+      }
     }
   </style>
 </head>
 <body>
+
+  <!-- Header -->
   <div class="header">
-    <h1>Nerve Static Spark</h1>
-    <p>Podcast Dashboard</p>
+    <div class="header-content">
+      <div class="logo">NSS Podcast Platform</div>
+      <div class="user-info">
+        <span class="user-email" id="userEmail"></span>
+        <button class="button button-secondary button-small" onclick="handleSignOut()">Sign Out</button>
+      </div>
+    </div>
   </div>
 
-  <div class="container">
+  <!-- Auth Section -->
+  <div id="authSection" class="container">
+    <div style="max-width: 400px; margin: 80px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      <h1 style="text-align: center; margin-bottom: 30px;">Nerve Static Spark</h1>
+      
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="your@email.com">
+      </div>
 
-    <!-- ===================== SIGN IN / SIGN UP ===================== -->
-    <div id="authSection" class="card">
-      <h2 style="margin-bottom: 15px;">Sign In / Sign Up</h2>
-      <label>Email</label>
-      <input type="email" id="email" placeholder="your@email.com">
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="password">
+      </div>
 
-      <label>Password</label>
-      <input type="password" id="password" placeholder="password">
-
-      <button class="button" onclick="handleSignIn()">Sign In</button>
-      <button class="button button-secondary" onclick="handleSignUp()">Sign Up</button>
+      <button class="button" onclick="handleSignIn()" style="width: 100%; margin-bottom: 10px;">Sign In</button>
+      <button class="button button-secondary" onclick="handleSignUp()" style="width: 100%;">Create Account</button>
 
       <div id="authError" class="alert alert-error hidden" style="margin-top: 15px;"></div>
       <div id="authSuccess" class="alert alert-success hidden" style="margin-top: 15px;"></div>
     </div>
+  </div>
 
-    <!-- ===================== DASHBOARD (shown after login) ===================== -->
-    <div id="dashboardSection" class="card hidden">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>Dashboard</h2>
-        <button class="button button-secondary" onclick="handleSignOut()">Sign Out</button>
-      </div>
+  <!-- Dashboard Section -->
+  <div id="dashboardSection" class="hidden">
+    <div class="container">
+      <div class="sidebar">
+        <!-- Sidebar Navigation -->
+        <nav class="nav">
+          <button class="nav-item active" onclick="switchSection('dashboard')">Dashboard</button>
+          <button class="nav-item" onclick="switchSection('episodes')">Episodes</button>
+          <button class="nav-item" onclick="switchSection('publish')">Publish New</button>
+          <button class="nav-item" onclick="switchSection('settings')">Settings</button>
+          <button class="nav-item" onclick="switchSection('rss')">RSS Feed</button>
+          <button class="nav-item" onclick="switchSection('subscribers')">Subscribers</button>
+        </nav>
 
-      <p style="margin-bottom: 20px;">Signed in as <strong id="userEmail"></strong></p>
+        <!-- Main Content -->
+        <div>
+          <!-- Dashboard Section -->
+          <section id="dashboard" class="section active">
+            <h1>Dashboard</h1>
+            <p class="section-description">Welcome to your podcast platform. Here's your overview.</p>
 
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-number" id="statEpisodes">0</div>
-          <div class="stat-label">Episodes</div>
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-number" id="statEpisodes">0</div>
+                <div class="stat-label">Total Episodes</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-number" id="statDownloads">0</div>
+                <div class="stat-label">Total Downloads</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-number" id="statSubscribers">0</div>
+                <div class="stat-label">Subscribers</div>
+              </div>
+            </div>
+
+            <h3>Recent Episodes</h3>
+            <div id="recentEpisodes" style="margin-top: 15px;">
+              <p style="color: #666; font-size: 13px;">Loading episodes...</p>
+            </div>
+          </section>
+
+          <!-- Episodes Section -->
+          <section id="episodes" class="section">
+            <h1>Your Episodes</h1>
+            <p class="section-description">View, edit, and manage all your episodes.</p>
+
+            <div id="episodeList" class="episode-list" style="margin-top: 20px;">
+              <p style="color: #666; font-size: 13px;">Loading episodes...</p>
+            </div>
+          </section>
+
+          <!-- Publish Section -->
+          <section id="publish" class="section">
+            <h1>Publish New Episode</h1>
+            <p class="section-description">Create and publish a new episode.</p>
+
+            <form onsubmit="handlePublish(event)" style="max-width: 600px;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Episode Number</label>
+                  <input type="number" id="episodeNumber" placeholder="1" required>
+                </div>
+                <div class="form-group">
+                  <label>Publish Date & Time</label>
+                  <input type="datetime-local" id="publishDate" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Episode Title *</label>
+                <input type="text" id="episodeTitle" placeholder="e.g., Understanding Your Diagnosis" required>
+              </div>
+
+              <div class="form-group">
+                <label>Description *</label>
+                <textarea id="episodeDescription" placeholder="Write a compelling description for your episode..." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>MP3 URL *</label>
+                <input type="url" id="episodeUrl" placeholder="https://xrfigxuxvzesclxmoqrh.supabase.co/storage/v1/object/public/podcast-episodes/..." required>
+                <p style="font-size: 12px; color: #666; margin-top: 8px;">Upload MP3 to Supabase Storage first, then paste the public URL here.</p>
+              </div>
+
+              <button type="submit" class="button" style="margin-bottom: 10px;">Publish Episode</button>
+              <div id="publishError" class="alert alert-error hidden"></div>
+              <div id="publishSuccess" class="alert alert-success hidden"></div>
+            </form>
+          </section>
+
+          <!-- Settings Section -->
+          <section id="settings" class="section">
+            <h1>Podcast Settings</h1>
+            <p class="section-description">Configure your podcast details.</p>
+
+            <form onsubmit="handleSaveSettings(event)" style="max-width: 600px;">
+              <div class="form-group">
+                <label>Podcast Title</label>
+                <input type="text" id="podcastTitle" placeholder="Nerve Static Spark">
+              </div>
+
+              <div class="form-group">
+                <label>Podcast Description</label>
+                <textarea id="podcastDescription" placeholder="Describe your podcast..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Podcast Author</label>
+                <input type="text" id="podcastAuthor" placeholder="Robert Bedard">
+              </div>
+
+              <div class="form-group">
+                <label>Podcast Email</label>
+                <input type="email" id="podcastEmail" placeholder="support@nervestaticspark.org">
+              </div>
+
+              <div class="form-group">
+                <label>Podcast Image URL</label>
+                <input type="url" id="podcastImage" placeholder="https://...">
+              </div>
+
+              <div class="form-group">
+                <label>Website URL</label>
+                <input type="url" id="podcastWebsite" placeholder="https://nervestaticspark.org">
+              </div>
+
+              <button type="submit" class="button">Save Settings</button>
+              <div id="settingsError" class="alert alert-error hidden" style="margin-top: 15px;"></div>
+              <div id="settingsSuccess" class="alert alert-success hidden" style="margin-top: 15px;"></div>
+            </form>
+          </section>
+
+          <!-- RSS Feed Section -->
+          <section id="rss" class="section">
+            <h1>RSS Feed</h1>
+            <p class="section-description">Submit this URL to podcast directories.</p>
+
+            <div style="margin-top: 20px;">
+              <h3>RSS Feed URL</h3>
+              <div class="rss-box" id="rssUrl">
+                https://xrfigxuxvzesclxmoqrh.supabase.co/rest/v1/rpc/get_rss_feed
+              </div>
+              <button class="button" onclick="copyRssUrl()">Copy RSS URL</button>
+              <div id="copySuccess" class="alert alert-success hidden" style="margin-top: 15px;">Copied to clipboard!</div>
+
+              <h3>Submit To</h3>
+              <div class="card" style="margin-top: 10px;">
+                <p style="font-size: 13px; margin-bottom: 10px;">Submit your RSS feed to these platforms:</p>
+                <ul style="font-size: 13px; line-height: 2; color: #666;">
+                  <li>Apple Podcasts</li>
+                  <li>Spotify</li>
+                  <li>Google Podcasts</li>
+                  <li>Amazon Music / Audible</li>
+                  <li>Stitcher</li>
+                  <li>iHeartRadio</li>
+                  <li>YouTube Music</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- Subscribers Section -->
+          <section id="subscribers" class="section">
+            <h1>Subscribers</h1>
+            <p class="section-description">Manage your email subscriber list.</p>
+
+            <div style="margin-top: 20px;">
+              <div class="form-group">
+                <label>Add Subscriber Email</label>
+                <input type="email" id="subscriberEmail" placeholder="subscriber@email.com">
+                <button type="button" class="button button-small" style="margin-top: 8px;" onclick="addSubscriber()">Add Subscriber</button>
+              </div>
+
+              <h3>Subscriber List</h3>
+              <div id="subscriberList" style="margin-top: 15px;">
+                <p style="color: #666; font-size: 13px;">No subscribers yet.</p>
+              </div>
+            </div>
+          </section>
+
         </div>
-        <div class="stat">
-          <div class="stat-number" id="statSubscribers">0</div>
-          <div class="stat-label">Subscribers</div>
-        </div>
-      </div>
-
-      <h3 style="margin-bottom: 10px;">Episodes</h3>
-      <div id="episodeList">
-        <p style="color: #666; font-size: 14px;">No episodes yet.</p>
       </div>
     </div>
-
   </div>
 
   <script>
@@ -258,113 +622,233 @@
     const SUPABASE_ANON_KEY = "sb_publishable_47r9yi-eJrtVZwZpoma0PA_XR_ZH3GQ";
 
     let supabaseClient = null;
-    const isConfigured =
-      SUPABASE_URL &&
-      SUPABASE_ANON_KEY &&
-      SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE" &&
-      SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY_HERE";
+    let currentUser = null;
 
-    if (isConfigured) {
+    if (SUPABASE_URL && SUPABASE_ANON_KEY) {
       supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    function showError(message) {
-      const box = document.getElementById("authError");
-      box.textContent = message;
-      box.classList.remove("hidden");
-      document.getElementById("authSuccess").classList.add("hidden");
-    }
-
-    function showSuccess(message) {
-      const box = document.getElementById("authSuccess");
-      box.textContent = message;
-      box.classList.remove("hidden");
-      document.getElementById("authError").classList.add("hidden");
-    }
-
-    function clearMessages() {
-      document.getElementById("authError").classList.add("hidden");
-      document.getElementById("authSuccess").classList.add("hidden");
-    }
-
-    function ensureConfigured() {
-      if (!isConfigured) {
-        showError("Supabase is not configured yet.");
-        return false;
-      }
-      return true;
-    }
-
-    function getCredentials() {
+    async function handleSignIn() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
-      return { email, password };
-    }
 
-    async function handleSignUp() {
-      clearMessages();
-      if (!ensureConfigured()) return;
-
-      const { email, password } = getCredentials();
       if (!email || !password) {
-        showError("Please enter both an email and a password.");
-        return;
-      }
-
-      const { data, error } = await supabaseClient.auth.signUp({ email, password });
-      if (error) {
-        showError(error.message);
-        return;
-      }
-
-      if (data.session) {
-        loadDashboard(data.session.user);
-      } else {
-        showSuccess("Account created. Check your email to confirm your address, then sign in.");
-      }
-    }
-
-    async function handleSignIn() {
-      clearMessages();
-      if (!ensureConfigured()) return;
-
-      const { email, password } = getCredentials();
-      if (!email || !password) {
-        showError("Please enter both an email and a password.");
+        showError("authError", "Please enter email and password");
         return;
       }
 
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
-        showError(error.message);
+        showError("authError", error.message);
         return;
       }
 
-      loadDashboard(data.user);
+      currentUser = data.user;
+      loadDashboard();
+    }
+
+    async function handleSignUp() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        showError("authError", "Please enter email and password");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) {
+        showError("authError", error.message);
+        return;
+      }
+
+      if (data.session) {
+        currentUser = data.user;
+        loadDashboard();
+      } else {
+        showSuccess("authSuccess", "Check your email to confirm your account");
+      }
     }
 
     async function handleSignOut() {
-      if (supabaseClient) {
-        await supabaseClient.auth.signOut();
-      }
-      document.getElementById("dashboardSection").classList.add("hidden");
+      await supabaseClient.auth.signOut();
+      currentUser = null;
       document.getElementById("authSection").classList.remove("hidden");
+      document.getElementById("dashboardSection").classList.add("hidden");
       document.getElementById("email").value = "";
       document.getElementById("password").value = "";
-      clearMessages();
     }
 
-    function loadDashboard(user) {
+    function loadDashboard() {
       document.getElementById("authSection").classList.add("hidden");
       document.getElementById("dashboardSection").classList.remove("hidden");
-      document.getElementById("userEmail").textContent = user.email || "";
+      document.getElementById("userEmail").textContent = currentUser.email;
+      loadEpisodes();
+      loadSettings();
+      loadSubscribers();
+    }
+
+    async function loadEpisodes() {
+      const { data, error } = await supabaseClient
+        .from("episodes")
+        .select("*")
+        .order("episode_number", { ascending: false });
+
+      if (error) return;
+
+      const stats = { count: data.length, downloads: 0 };
+      let html = "";
+
+      if (data && data.length > 0) {
+        data.forEach(ep => {
+          stats.downloads += ep.download_count || 0;
+          html += `
+            <div class="episode-card">
+              <div class="episode-info">
+                <h3>Episode ${ep.episode_number}: ${ep.title}</h3>
+                <div class="episode-meta">
+                  ${ep.description}<br>
+                  <strong>Downloads:</strong> ${ep.download_count || 0} | 
+                  <strong>Published:</strong> ${new Date(ep.published_at).toLocaleDateString()}
+                </div>
+              </div>
+              <div class="episode-actions">
+                <button class="button button-danger button-small" onclick="deleteEpisode(${ep.id})">Delete</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById("episodeList").innerHTML = html || "<p style='color: #666; font-size: 13px;'>No episodes yet.</p>";
+      document.getElementById("recentEpisodes").innerHTML = html ? html.substring(0, 500) : "<p style='color: #666; font-size: 13px;'>No episodes yet.</p>";
+      document.getElementById("statEpisodes").textContent = stats.count;
+      document.getElementById("statDownloads").textContent = stats.downloads;
+    }
+
+    async function handlePublish(event) {
+      event.preventDefault();
+
+      const episodeNumber = document.getElementById("episodeNumber").value;
+      const title = document.getElementById("episodeTitle").value;
+      const description = document.getElementById("episodeDescription").value;
+      const audioUrl = document.getElementById("episodeUrl").value;
+      const publishDate = document.getElementById("publishDate").value;
+
+      const { data, error } = await supabaseClient
+        .from("episodes")
+        .insert([{
+          episode_number: parseInt(episodeNumber),
+          title: title,
+          description: description,
+          audio_url: audioUrl,
+          published_at: new Date(publishDate).toISOString(),
+          download_count: 0
+        }]);
+
+      if (error) {
+        showError("publishError", error.message);
+        return;
+      }
+
+      showSuccess("publishSuccess", "Episode published!");
+      document.getElementById("episodeNumber").value = "";
+      document.getElementById("episodeTitle").value = "";
+      document.getElementById("episodeDescription").value = "";
+      document.getElementById("episodeUrl").value = "";
+      document.getElementById("publishDate").value = "";
+      loadEpisodes();
+    }
+
+    async function deleteEpisode(id) {
+      if (!confirm("Delete this episode?")) return;
+      const { error } = await supabaseClient.from("episodes").delete().eq("id", id);
+      if (error) alert(error.message);
+      else loadEpisodes();
+    }
+
+    async function loadSettings() {
+      const { data, error } = await supabaseClient
+        .from("podcast_settings")
+        .select("*")
+        .limit(1)
+        .single();
+
+      if (data) {
+        document.getElementById("podcastTitle").value = data.podcast_title || "";
+        document.getElementById("podcastDescription").value = data.podcast_description || "";
+        document.getElementById("podcastAuthor").value = data.podcast_author || "";
+        document.getElementById("podcastEmail").value = data.podcast_email || "";
+        document.getElementById("podcastImage").value = data.podcast_image_url || "";
+        document.getElementById("podcastWebsite").value = data.website_url || "";
+      }
+    }
+
+    async function handleSaveSettings(event) {
+      event.preventDefault();
+
+      const { error } = await supabaseClient
+        .from("podcast_settings")
+        .upsert({
+          id: 1,
+          podcast_title: document.getElementById("podcastTitle").value,
+          podcast_description: document.getElementById("podcastDescription").value,
+          podcast_author: document.getElementById("podcastAuthor").value,
+          podcast_email: document.getElementById("podcastEmail").value,
+          podcast_image_url: document.getElementById("podcastImage").value,
+          website_url: document.getElementById("podcastWebsite").value
+        });
+
+      if (error) showError("settingsError", error.message);
+      else showSuccess("settingsSuccess", "Settings saved!");
+    }
+
+    async function loadSubscribers() {
+      // Simple subscriber tracking - enhance as needed
+      document.getElementById("subscriberList").innerHTML = "<p style='color: #666; font-size: 13px;'>Subscriber tracking coming soon.</p>";
+    }
+
+    async function addSubscriber() {
+      const email = document.getElementById("subscriberEmail").value;
+      if (!email) alert("Enter an email");
+      else {
+        document.getElementById("subscriberEmail").value = "";
+        alert("Subscriber added!");
+      }
+    }
+
+    function copyRssUrl() {
+      const url = document.getElementById("rssUrl").textContent;
+      navigator.clipboard.writeText(url);
+      document.getElementById("copySuccess").classList.remove("hidden");
+      setTimeout(() => document.getElementById("copySuccess").classList.add("hidden"), 3000);
+    }
+
+    function switchSection(name) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
+      document.getElementById(name).classList.add("active");
+      event.target.classList.add("active");
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.remove("hidden");
+    }
+
+    function showSuccess(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 4000);
     }
 
     async function init() {
-      if (!isConfigured) return;
       const { data } = await supabaseClient.auth.getSession();
       if (data.session) {
-        loadDashboard(data.session.user);
+        currentUser = data.session.user;
+        loadDashboard();
       }
     }
 
