@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Nerve Static Spark</title>
+    <link>https://nervestaticspark.org</link>
+    <description>Understanding Chronic Pain and Autonomic Peripheral Neuropathy. Breaking the silence. Building community. Finding purpose.</description>
+    <language>en-us</language>
+    <managingEditor>support@nervestaticspark.org</managingEditor>
+    <webMaster>support@nervestaticspark.org</webMaster>
+    <image>
+      <url>https://xrfigxuxvzesclxmoqrh.supabase.co/storage/v1/object/public/podcast-episodes/nss-logo.jpg</url>
+      <title>Nerve Static Spark</title>
+      <link>https://nervestaticspark.org</link>
+    </image>
+    <itunes:author>Nerve Static Spark</itunes:author>
+    <itunes:owner>
+      <itunes:name>Nerve Static Spark</itunes:name>
+      <itunes:email>support@nervestaticspark.org</itunes:email>
+    </itunes:owner>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:category text="Health"/>
+    <itunes:image href="https://xrfigxuxvzesclxmoqrh.supabase.co/storage/v1/object/public/podcast-episodes/nss-logo.jpg"/>
+
+    <!-- ADD YOUR EPISODES HERE - Each episode is one <item> below -->
+    <!-- Copy and paste this template for each new episode -->
+
+    <item>
+      <title>Episode 1: Understanding Your Diagnosis</title>
+      <description>An introduction to chronic pain, autonomic peripheral neuropathy, and what it means for your journey moving forward.</description>
+      <link>https://nervestaticspark.org</link>
+      <enclosure url="https://xrfigxuxvzesclxmoqrh.supabase.co/storage/v1/object/public/podcast-episodes/episode-1.mp3" type="audio/mpeg" length="0"/>
+      <guid>nss-episode-1</guid>
+      <pubDate>Wed, 16 Jul 2026 12:00:00 GMT</pubDate>
+      <itunes:duration>00:38:00</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+
+    <!-- TEMPLATE FOR NEW EPISODES - Copy this and fill in your info:
+
+    <item>
+      <title>Episode [NUMBER]: [EPISODE TITLE]</title>
+      <description>[EPISODE DESCRIPTION]</description>
+      <link>https://nervestaticspark.org</link>
+      <enclosure url="[YOUR MP3 URL FROM SUPABASE]" type="audio/mpeg" length="0"/>
+      <guid>nss-episode-[NUMBER]</guid>
+      <pubDate>[PUBLISH DATE - Example: Wed, 16 Jul 2026 12:00:00 GMT]</pubDate>
+      <itunes:duration>[DURATION - Example: 00:38:00]</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+
+    -->
+
+  </channel>
+</rss>
