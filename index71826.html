@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neuro Static Pulse Podcast</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0A0F14 0%, #1A2330 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .button {
+      background: #00B2FF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .button:hover {
+      background: #0099ff;
+    }
+
+    .button-secondary {
+      background: #f0f0f0;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    .button-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .button-danger {
+      background: #ff3333;
+    }
+
+    .button-danger:hover {
+      background: #cc0000;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-top: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .tab {
+      background: none;
+      border: none;
+      padding: 12px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #666;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .tab.active {
+      color: #00B2FF;
+      border-bottom-color: #00B2FF;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .episode-item {
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+
+    .episode-info h3 {
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+
+    .episode-meta {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .rss-url {
+      background: #f0f7ff;
+      padding: 12px;
+      border: 1px solid #00B2FF;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+      word-break: break-all;
+      margin-top: 10px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #00B2FF;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Neuro Static Pulse</h1>
+    <p>Podcast Dashboard</p>
+  </div>
+
+  <div class="container">
+
+    <!-- ===================== SIGN IN / SIGN UP ===================== -->
+    <div id="authSection" class="card">
+      <h2 style="margin-bottom: 15px;">Sign In / Sign Up</h2>
+      <label>Email</label>
+      <input type="email" id="email" placeholder="your@email.com">
+
+      <label>Password</label>
+      <input type="password" id="password" placeholder="password">
+
+      <button class="button" onclick="handleSignIn()">Sign In</button>
+      <button class="button button-secondary" onclick="handleSignUp()">Sign Up</button>
+
+      <div id="authError" class="alert alert-error hidden" style="margin-top: 15px;"></div>
+      <div id="authSuccess" class="alert alert-success hidden" style="margin-top: 15px;"></div>
+    </div>
+
+    <!-- ===================== DASHBOARD (shown after login) ===================== -->
+    <div id="dashboardSection" class="card hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Dashboard</h2>
+        <button class="button button-secondary" onclick="handleSignOut()">Sign Out</button>
+      </div>
+
+      <p style="margin-bottom: 20px;">Signed in as <strong id="userEmail"></strong></p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-number" id="statEpisodes">0</div>
+          <div class="stat-label">Episodes</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" id="statSubscribers">0</div>
+          <div class="stat-label">Subscribers</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom: 10px;">Episodes</h3>
+      <div id="episodeList">
+        <p style="color: #666; font-size: 14px;">No episodes yet.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://xrfigxuxvzesclxmoqrh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_47r9yi-eJrtVZwZpoma0PA_XR_ZH3GQ";
+
+    let supabaseClient = null;
+    const isConfigured =
+      SUPABASE_URL &&
+      SUPABASE_ANON_KEY &&
+      SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE" &&
+      SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY_HERE";
+
+    if (isConfigured) {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    function showError(message) {
+      const box = document.getElementById("authError");
+      box.textContent = message;
+      box.classList.remove("hidden");
+      document.getElementById("authSuccess").classList.add("hidden");
+    }
+
+    function showSuccess(message) {
+      const box = document.getElementById("authSuccess");
+      box.textContent = message;
+      box.classList.remove("hidden");
+      document.getElementById("authError").classList.add("hidden");
+    }
+
+    function clearMessages() {
+      document.getElementById("authError").classList.add("hidden");
+      document.getElementById("authSuccess").classList.add("hidden");
+    }
+
+    function ensureConfigured() {
+      if (!isConfigured) {
+        showError("Supabase is not configured yet.");
+        return false;
+      }
+      return true;
+    }
+
+    function getCredentials() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      return { email, password };
+    }
+
+    async function handleSignUp() {
+      clearMessages();
+      if (!ensureConfigured()) return;
+
+      const { email, password } = getCredentials();
+      if (!email || !password) {
+        showError("Please enter both an email and a password.");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) {
+        showError(error.message);
+        return;
+      }
+
+      if (data.session) {
+        loadDashboard(data.session.user);
+      } else {
+        showSuccess("Account created. Check your email to confirm your address, then sign in.");
+      }
+    }
+
+    async function handleSignIn() {
+      clearMessages();
+      if (!ensureConfigured()) return;
+
+      const { email, password } = getCredentials();
+      if (!email || !password) {
+        showError("Please enter both an email and a password.");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        showError(error.message);
+        return;
+      }
+
+      loadDashboard(data.user);
+    }
+
+    async function handleSignOut() {
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+      document.getElementById("dashboardSection").classList.add("hidden");
+      document.getElementById("authSection").classList.remove("hidden");
+      document.getElementById("email").value = "";
+      document.getElementById("password").value = "";
+      clearMessages();
+    }
+
+    function loadDashboard(user) {
+      document.getElementById("authSection").classList.add("hidden");
+      document.getElementById("dashboardSection").classList.remove("hidden");
+      document.getElementById("userEmail").textContent = user.email || "";
+    }
+
+    async function init() {
+      if (!isConfigured) return;
+      const { data } = await supabaseClient.auth.getSession();
+      if (data.session) {
+        loadDashboard(data.session.user);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
